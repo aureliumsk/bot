@@ -1,8 +1,9 @@
 import sqlite3
 from config import *
 import matplotlib
+from uuid import uuid4
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+import matplotlib.figure as fg
 import cartopy.crs as ccrs
 
 
@@ -58,14 +59,24 @@ class DB_Map():
             coordinates = cursor.fetchone()
             return coordinates
 
-    def create_grapf(self, path, cities):
-        pass
+    def create_grapf(self, path: str, cities: list):
+        fig = fg.Figure()
+        ax = fig.add_subplot(projection=ccrs.PlateCarree())
+        ax.stock_img()
+        for city in cities:
+            coordinates = self.get_coordinates(city)
+            if coordinates is None:
+                continue
+            lat, lon = coordinates
+            ax.plot(lon, lat, "bo")
+            ax.text(lon, lat - 13, city)
+        fig.savefig(path)
         
     def draw_distance(self, city1, city2):
         pass
 
-
-if __name__=="__main__":
-    
+if __name__=="__main__":    
     m = DB_Map(DATABASE)
     m.create_user_table()
+    # m = DB_Map(DATABASE)
+    # m.create_grapf("image.png", ["New York", "Moscow"])

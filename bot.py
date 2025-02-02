@@ -1,4 +1,6 @@
 import telebot
+from telebot.types import InputFile
+from uuid import uuid4
 from config import *
 from logic import *
 
@@ -10,14 +12,21 @@ def handle_start(message):
 
 @bot.message_handler(commands=['help'])
 def handle_help(message):
-    bot.send_message(message.chat.id, "Доступные команды:  ...")
-    # Допиши команды бота
-
+    bot.send_message(message.chat.id, """Доступные команды:
+    /help - справка
+    /remember_city - \"запомнить\" город
+    /show_city <город> - показать город
+    /show_my_cities - показать сохранённые города
+    """)
 
 @bot.message_handler(commands=['show_city'])
 def handle_show_city(message):
     city_name = message.text.split()[-1]
-    # Реализуй отрисовку города по запросу
+
+    filename = f"{uuid4()}.png"
+    manager.create_grapf(filename, [city_name])
+
+    bot.send_photo(message.chat.id, InputFile(filename))    
 
 
 @bot.message_handler(commands=['remember_city'])
@@ -32,7 +41,9 @@ def handle_remember_city(message):
 @bot.message_handler(commands=['show_my_cities'])
 def handle_show_visited_cities(message):
     cities = manager.select_cities(message.chat.id)
-    # Реализуй отрисовку всех городов
+    filename = f"{uuid4()}.png"
+    manager.create_grapf(filename, cities)
+    bot.send_photo(message.chat.id, InputFile(filename))
 
 
 if __name__=="__main__":
